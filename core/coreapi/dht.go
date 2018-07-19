@@ -93,12 +93,12 @@ func (api *DhtAPI) FindProviders(ctx context.Context, p coreiface.Path, opts ...
 		return nil, ErrNotDHT
 	}
 
-	p, err = api.ResolvePath(ctx, p)
+	rp, err := api.ResolvePath(ctx, p)
 	if err != nil {
 		return nil, err
 	}
 
-	c := p.Cid()
+	c := rp.Cid()
 
 	numProviders := settings.NumProviders
 	if numProviders < 1 {
@@ -162,7 +162,12 @@ func (api *DhtAPI) Provide(ctx context.Context, path coreiface.Path, opts ...cao
 		return errors.New("cannot provide, no connected peers")
 	}
 
-	c := path.Cid()
+	rp, err := api.ResolvePath(ctx, path)
+	if err != nil {
+		return err
+	}
+
+	c := rp.Cid()
 
 	has, err := api.node.Blockstore.Has(c)
 	if err != nil {
